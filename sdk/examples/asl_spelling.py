@@ -25,6 +25,7 @@ from aero_open_sdk.aero_hand import AeroHand
 import time
 import sys
 import argparse
+import serial.tools.list_ports
 
 # ASL Letter Positions
 # Format: [thumb_rotation, thumb_mcp, thumb_ip, index, middle, ring, pinky]
@@ -62,16 +63,53 @@ ASL_POSITIONS = {
 }
 
 
+def find_aero_hand_port():
+    """
+    Auto-detect the COM port for the TetherIA Aero Hand
+    
+    Looks for Espressif ESP32-S3 devices with VID:PID 303A:1001
+    
+    Returns:
+        str: Port name if found, None otherwise
+    """
+    AERO_HAND_VID = 0x303A  # Espressif Systems
+    AERO_HAND_PID = 0x1001  # ESP32-S3 USB-OTG
+    
+    print("Scanning for TetherIA Aero Hand...")
+    
+    ports = serial.tools.list_ports.comports()
+    
+    for port in ports:
+        if port.vid == AERO_HAND_VID and port.pid == AERO_HAND_PID:
+            print(f"Found Aero Hand on: {port.device}")
+            print(f"  VID:PID = {port.vid:04X}:{port.pid:04X}")
+            return port.device
+    
+    print("No Aero Hand found. Available ports:")
+    for port in ports:
+        if port.vid:
+            print(f"  {port.device}: VID:PID = {port.vid:04X}:{port.pid:04X}")
+        else:
+            print(f"  {port.device}: {port.description}")
+    
+    return None
+
+
 class ASLSpeller:
     """Controls the robotic hand to spell words in ASL"""
 
-    def __init__(self, port="COM11"):
+    def __init__(self, port=None):
         """
         Initialize the ASL Speller
 
         Args:
-            port: Serial port for the hand (e.g., "COM11" on Windows)
+            port: Serial port for the hand. If None, auto-detect the Aero Hand
         """
+        if port is None:
+            port = find_aero_hand_port()
+            if port is None:
+                raise Exception("Could not find TetherIA Aero Hand. Please specify port manually with -p/--port")
+        
         print(f"Connecting to hand on {port}...")
         self.hand = AeroHand(port)
         print("Connected!")
@@ -201,8 +239,8 @@ Examples:
 
     parser.add_argument(
         '-p', '--port',
-        default='COM11',
-        help='Serial port for the robotic hand (default: COM11)'
+        default=None,
+        help='Serial port for the robotic hand (default: auto-detect)'
     )
     parser.add_argument(
         'text',
@@ -215,7 +253,6 @@ Examples:
     print("\n" + "="*60)
     print("ASL SPELLING SYSTEM FOR TETHERIA ROBOTIC HAND")
     print("="*60)
-    print(f"Port: {args.port}")
 
     try:
         speller = ASLSpeller(port=args.port)
