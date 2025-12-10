@@ -18,7 +18,7 @@ ASL Spelling Script for TetherIA Robotic Hand
 
 This script controls the robotic hand to spell words using American Sign Language (ASL).
 Joint order: [thumb_rot, thumb_mcp, thumb_ip, index, middle, ring, pinky]
-Values are in degrees (0 = open/extended, higher = closed/flexed)
+Values are normalized 0.0-1.0 (0.0 = open/extended, 1.0 = closed)
 """
 
 from aero_open_sdk.aero_hand import AeroHand
@@ -29,33 +29,34 @@ import serial.tools.list_ports
 
 # ASL Letter Positions
 # Format: [thumb_rotation, thumb_mcp, thumb_ip, index, middle, ring, pinky]
+# Values are normalized 0.0-1.0 (0.0 = open/extended, 1.0 = closed)
 ASL_POSITIONS = {
-    'A': [50.0, 80.0, 60.0, 90.0, 90.0, 90.0, 90.0],  # Closed fist, thumb alongside
-    'B': [80.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],  # Flat hand, thumb tucked
-    'C': [30.0, 30.0, 20.0, 40.0, 40.0, 40.0, 40.0],  # Curved hand
-    'D': [75.0, 40.0, 30.0, 0.0, 90.0, 90.0, 90.0],  # Index up, others closed
-    'E': [50.0, 60.0, 50.0, 70.0, 70.0, 70.0, 70.0],  # All fingers curled down
-    'F': [60.0, 50.0, 40.0, 60.0, 0.0, 0.0, 0.0],  # Index-thumb touch, others up
-    'G': [90.0, 20.0, 10.0, 10.0, 90.0, 90.0, 90.0],  # Index pointing, thumb out
-    'H': [90.0, 20.0, 10.0, 10.0, 10.0, 90.0, 90.0],  # Index+middle pointing
-    'I': [80.0, 20.0, 10.0, 90.0, 90.0, 90.0, 0.0],  # Pinky up
-    'J': [80.0, 20.0, 10.0, 90.0, 90.0, 90.0, 0.0],  # Pinky up (motion added later)
-    'K': [45.0, 30.0, 20.0, 0.0, 20.0, 90.0, 90.0],  # Index+middle up, thumb between
-    'L': [0.0, 0.0, 0.0, 0.0, 90.0, 90.0, 90.0],  # Index+thumb L-shape
-    'M': [80.0, 40.0, 30.0, 30.0, 30.0, 30.0, 90.0],  # Three fingers over thumb
-    'N': [80.0, 40.0, 30.0, 30.0, 30.0, 90.0, 90.0],  # Two fingers over thumb
-    'O': [50.0, 50.0, 40.0, 50.0, 50.0, 50.0, 50.0],  # All fingers forming circle
-    'P': [45.0, 20.0, 10.0, 10.0, 90.0, 90.0, 90.0],  # Index down, thumb out
-    'Q': [30.0, 10.0, 0.0, 70.0, 90.0, 90.0, 90.0],  # Index+thumb pointing down
-    'R': [70.0, 30.0, 20.0, 5.0, 5.0, 90.0, 90.0],  # Index+middle crossed
-    'S': [50.0, 80.0, 60.0, 90.0, 90.0, 90.0, 90.0],  # Fist with thumb over fingers
-    'T': [70.0, 60.0, 50.0, 40.0, 90.0, 90.0, 90.0],  # Thumb between index+middle
-    'U': [80.0, 20.0, 10.0, 0.0, 0.0, 90.0, 90.0],  # Index+middle together, up
-    'V': [80.0, 20.0, 10.0, 0.0, 0.0, 90.0, 90.0],  # Index+middle apart, up
-    'W': [80.0, 20.0, 10.0, 0.0, 0.0, 0.0, 90.0],  # Three fingers up
-    'X': [70.0, 40.0, 30.0, 40.0, 90.0, 90.0, 90.0],  # Index bent, hook shape
-    'Y': [0.0, 0.0, 0.0, 90.0, 90.0, 90.0, 0.0],  # Thumb+pinky out (shaka)
-    'Z': [90.0, 20.0, 10.0, 0.0, 90.0, 90.0, 90.0],  # Index up (trace Z motion)
+    'A': [0.0, 0.8, 0.75, 1.0, 1.0, 1.0, 1.0],  # Closed fist, thumb alongside
+    'B': [0.5, 1.0, 0.85, 0.0, 0.0, 0.0, 0.0],  # Flat hand, thumb tucked
+    'C': [1.0, 0.45, 0.57, 0.52, 0.49, 0.52, 0.46],  # Curved hand
+    'D': [1.0, 0.5, 0.8, 0.0, 0.8, 0.8, 0.8],  # Index up, others closed
+    'E': [0.5, 1.0, 1.0, 0.8, 0.8, 0.8, 0.85],  # All fingers curled down
+    'F': [0.67, 0.56, 0.44, 0.67, 0.0, 0.0, 0.0],  # Index-thumb touch, others up
+    'G': [0.6, 1.0, 0.67, 0.0, 1.0, 1.0, 1.0],  # Index pointing, thumb flat against palm
+    'H': [1.0, 1.0, 0.62, 0.0, 0.0, 1.0, 1.0],  # Index+middle pointing, thumb flat against palm
+    'I': [0.7, 1.0, 0.6, 1.0, 1.0, 1.0, 0.0],  # Pinky up
+    'J': [0.7, 1.0, 0.6, 1.0, 1.0, 1.0, 0.0],  # Pinky up (motion added later)
+    'K': [0.65, 1.0, 0.85, 0.0, 0.0, 1.0, 1.0],  # Index+middle up, thumb between
+    'L': [0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0],  # Index+thumb L-shape
+    'M': [0.3, 1.0, 0.85, 0.8, 0.8, 0.8, 1.0],  # Three fingers over thumb
+    'N': [0.3, 1.0, 0.85, 0.8, 0.8, 1.0, 1.0],  # Two fingers over thumb
+    'O': [0.73, 0.0, 0.65, 0.7, 0.7, 0.7, 0.7],  # All fingers forming circle
+    'P': [0.5, 0.22, 0.11, 0.11, 1.0, 1.0, 1.0],  # Index down, thumb out
+    'Q': [0.33, 0.11, 0.0, 0.78, 1.0, 1.0, 1.0],  # Index+thumb pointing down
+    'R': [0.78, 0.33, 0.22, 0.06, 0.06, 1.0, 1.0],  # Index+middle crossed
+    'S': [0.56, 0.89, 0.67, 1.0, 1.0, 1.0, 1.0],  # Fist with thumb over fingers
+    'T': [0.78, 0.67, 0.56, 0.44, 1.0, 1.0, 1.0],  # Thumb between index+middle
+    'U': [0.89, 0.22, 0.11, 0.0, 0.0, 1.0, 1.0],  # Index+middle together, up
+    'V': [0.89, 0.22, 0.11, 0.0, 0.0, 1.0, 1.0],  # Index+middle apart, up
+    'W': [0.89, 0.22, 0.11, 0.0, 0.0, 0.0, 1.0],  # Three fingers up
+    'X': [0.78, 0.44, 0.33, 0.44, 1.0, 1.0, 1.0],  # Index bent, hook shape
+    'Y': [0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0],  # Thumb+pinky out (shaka)
+    'Z': [1.0, 0.22, 0.11, 0.0, 1.0, 1.0, 1.0],  # Index up (trace Z motion)
 
     # Special positions
     'NEUTRAL': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],  # Open palm
@@ -133,11 +134,18 @@ class ASLSpeller:
 
         position = ASL_POSITIONS[letter]
         print(f"Signing: {letter}")
+        print(f"Normalized values: {position}")
+        print(f"  thumb_rot={position[0]:.2f}, thumb_mcp={position[1]:.2f}, thumb_ip={position[2]:.2f}")
+        print(f"  index={position[3]:.2f}, middle={position[4]:.2f}, ring={position[5]:.2f}, pinky={position[6]:.2f}")
+        
+        # Convert normalized values (0.0-1.0) to degrees (0.0-90.0)
+        position_degrees = [pos * 90.0 for pos in position]
+        print(f"Degrees values: {position_degrees}")
 
         # Create trajectory with transition and hold
         trajectory = [
-            (position, 0.8),  # Move to position
-            (position, hold_time),  # Hold position
+            (position_degrees, 0.8),  # Move to position
+            (position_degrees, hold_time),  # Hold position
         ]
 
         self.hand.run_trajectory(trajectory)
@@ -156,21 +164,24 @@ class ASLSpeller:
         print(f"{'='*50}\n")
 
         # Return to neutral position first
-        self.hand.run_trajectory([(ASL_POSITIONS['NEUTRAL'], 0.5)])
+        neutral_degrees = [pos * 90.0 for pos in ASL_POSITIONS['NEUTRAL']]
+        self.hand.run_trajectory([(neutral_degrees, 0.5)])
         time.sleep(0.3)
 
         # Spell each letter
         for letter in word:
             if letter == ' ':
                 print("--- SPACE ---")
-                self.hand.run_trajectory([(ASL_POSITIONS['SPACE'], word_delay)])
+                space_degrees = [pos * 90.0 for pos in ASL_POSITIONS['SPACE']]
+                self.hand.run_trajectory([(space_degrees, word_delay)])
             else:
                 self.spell_letter(letter, hold_time=letter_delay)
                 time.sleep(0.3)  # Small pause between letters
 
         # Return to neutral
         print("\nReturning to neutral position...")
-        self.hand.run_trajectory([(ASL_POSITIONS['NEUTRAL'], 0.8)])
+        neutral_degrees = [pos * 90.0 for pos in ASL_POSITIONS['NEUTRAL']]
+        self.hand.run_trajectory([(neutral_degrees, 0.8)])
         time.sleep(word_delay)
         print(f"Finished spelling: {word.upper()}\n")
 
@@ -217,7 +228,8 @@ class ASLSpeller:
 
         # Return to neutral
         print("\nReturning to neutral position...")
-        self.hand.run_trajectory([(ASL_POSITIONS['NEUTRAL'], 1.0)])
+        neutral_degrees = [pos * 90.0 for pos in ASL_POSITIONS['NEUTRAL']]
+        self.hand.run_trajectory([(neutral_degrees, 1.0)])
         print("Alphabet demo complete!\n")
 
 
