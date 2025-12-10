@@ -46,17 +46,17 @@ ASL_POSITIONS = {
     'M': [0.3, 1.0, 0.85, 0.8, 0.8, 0.8, 1.0],  # Three fingers over thumb
     'N': [0.3, 1.0, 0.85, 0.8, 0.8, 1.0, 1.0],  # Two fingers over thumb
     'O': [0.73, 0.0, 0.65, 0.7, 0.7, 0.7, 0.7],  # All fingers forming circle
-    'P': [0.5, 0.22, 0.11, 0.11, 1.0, 1.0, 1.0],  # Index down, thumb out
-    'Q': [0.33, 0.11, 0.0, 0.78, 1.0, 1.0, 1.0],  # Index+thumb pointing down
-    'R': [0.78, 0.33, 0.22, 0.06, 0.06, 1.0, 1.0],  # Index+middle crossed
+    'P': [0.56, 1.0, 0.4, 0.0, 0.5, 1.0, 1.0],  # Index down, thumb out
+    'Q': [0.7, 1.0, 0.4, 0.4, 1.0, 1.0, 1.0],  # Index+thumb pointing down
+    'R': [1.0, 1.0, 0.77, 0.34, 0.0, 1.0, 1.0],  # Index+middle crossed
     'S': [0.56, 0.89, 0.67, 1.0, 1.0, 1.0, 1.0],  # Fist with thumb over fingers
-    'T': [0.78, 0.67, 0.56, 0.44, 1.0, 1.0, 1.0],  # Thumb between index+middle
-    'U': [0.89, 0.22, 0.11, 0.0, 0.0, 1.0, 1.0],  # Index+middle together, up
-    'V': [0.89, 0.22, 0.11, 0.0, 0.0, 1.0, 1.0],  # Index+middle apart, up
-    'W': [0.89, 0.22, 0.11, 0.0, 0.0, 0.0, 1.0],  # Three fingers up
-    'X': [0.78, 0.44, 0.33, 0.44, 1.0, 1.0, 1.0],  # Index bent, hook shape
-    'Y': [0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0],  # Thumb+pinky out (shaka)
-    'Z': [1.0, 0.22, 0.11, 0.0, 1.0, 1.0, 1.0],  # Index up (trace Z motion)
+    'T': [0.65, 1.0, 0.6, 0.73, 1.0, 1.0, 1.0],  # Thumb between index+middle
+    'U': [1.0, 1.0, 0.8, 0.0, 0.0, 1.0, 1.0],  # Index+middle together, up
+    'V': [1.0, 1.0, 0.8, 0.0, 0.35, 1.0, 1.0],  # Index+middle apart, up
+    'W': [1.0, 1.0, 0.8, 0.0, 0.0, 0.0, 1.0],  # Three fingers up
+    'X': [0.525, 1.0, 0.73, 0.4, 1.0, 1.0, 1.0],  # Index bent, hook shape
+    'Y': [0.0, 1.0, 0.0, 1.0, 1.0, 1.0, 0.0],  # Thumb+pinky out (shaka)
+    'Z': [0.5, 1.0, 0.7, 0.0, 1.0, 1.0, 1.0],  # Index up (trace Z motion)
 
     # Special positions
     'NEUTRAL': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],  # Open palm
