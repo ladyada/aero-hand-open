@@ -115,7 +115,7 @@ class ASLSpeller:
         self.hand = AeroHand(port)
         print("Connected!")
 
-    def spell_letter(self, letter, hold_time=1.5):
+    def spell_letter(self, letter, hold_time=0.5):
         """
         Spell a single letter in ASL
 
@@ -150,7 +150,7 @@ class ASLSpeller:
 
         self.hand.run_trajectory(trajectory)
 
-    def spell_word(self, word, letter_delay=1.5, word_delay=2.0):
+    def spell_word(self, word, letter_delay=0.5, word_delay=1.5):
         """
         Spell an entire word in ASL
 
@@ -185,7 +185,7 @@ class ASLSpeller:
         time.sleep(word_delay)
         print(f"Finished spelling: {word.upper()}\n")
 
-    def spell_sentence(self, sentence, letter_delay=1.5, word_delay=2.0):
+    def spell_sentence(self, sentence, letter_delay=0.5, word_delay=1.5):
         """
         Spell multiple words (sentence) in ASL
 
@@ -209,7 +209,7 @@ class ASLSpeller:
         print(f"Finished spelling sentence!")
         print(f"{'*'*50}\n")
 
-    def demo_alphabet(self, letter_delay=2.0):
+    def demo_alphabet(self, letter_delay=0.5):
         """
         Demonstrate all letters A-Z
 
@@ -275,9 +275,9 @@ Examples:
             text = args.text
 
             if text.lower() == "demo":
-                speller.demo_alphabet(letter_delay=1.5)
+                speller.demo_alphabet(letter_delay=0.5)
             else:
-                speller.spell_sentence(text, letter_delay=1.5, word_delay=2.0)
+                speller.spell_sentence(text, letter_delay=0.5, word_delay=1.5)
         else:
             # Interactive prompt
             print("\nASL Speller Ready!")
@@ -299,9 +299,9 @@ Examples:
                         continue
 
                     if text.lower() == 'demo':
-                        speller.demo_alphabet(letter_delay=1.5)
+                        speller.demo_alphabet(letter_delay=0.5)
                     else:
-                        speller.spell_sentence(text, letter_delay=1.5, word_delay=2.0)
+                        speller.spell_sentence(text, letter_delay=0.5, word_delay=1.5)
 
                 except KeyboardInterrupt:
                     print("\n\nInterrupted by user. Exiting...")
